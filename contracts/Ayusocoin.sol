@@ -13,10 +13,9 @@ pragma solidity >=0.4.22 < 0.9.0;
 // Es decir, primero decimos qué cosas se pueden hacer con el contrato
 // y después ponemos el código del contrato.
 
-contract ERC20 {
-
-  function totalSupply() constant returns (uint256 supply);
-  function balanceOf(address _owner) public view returns (uint256 balance);
+/* 
+/  function totalSupply() public returns (uint256 supply);
+  function balanceOf(address _owner) public returns (uint256 balance);
   function transfer(address _to, uint256 _value) public returns (bool success);
   function transferFrom(address _from, address _to, uint256 _value) public returns (bool success);
   function approve(address _spender, uint256 _value) public returns (bool success);
@@ -27,9 +26,9 @@ contract ERC20 {
   event Approval(address indexed _owner, address indexed _spender, uint256 _value);
 
 }
+ */
 
-
-contract Ayusocoin is ERC20 {
+contract Ayusocoin {
 
   // Nombre y símbolo con el que se da a conocer el 'token':
   // Algunas wallets ignoran esto, pero mola verlo ;-)
@@ -39,6 +38,11 @@ contract Ayusocoin is ERC20 {
   // Parámetros técnicos
   uint256 public _totalSupply = 47000000000; // 1000 ayusos * 47.000.000 de españoles - un número divertido
   uint8 public constant decimals = 6;
+
+  // Eventos
+  event Transfer(address indexed _from, address indexed _to, uint256 _value);
+  event Approval(address indexed _owner, address indexed _spender, uint256 _value);
+
 
   // Estos dos mapping sirven para guardar datos en el blockchain de Ethereum
   // el almacenamiento en el blockchain es _muy_ caro: estamos guardando
@@ -62,10 +66,10 @@ contract Ayusocoin is ERC20 {
   // métodos del token
 
   // totalSupply -> ¿cuántos tokens hay en circulación
-  function totalSupply() public { return _totalSupply; }
+  function totalSupply() public view returns (uint256) { return _totalSupply; }
 
   // balanceOf -> ¿cuántos tiene cada dirección?
-  function balanceOf(address _quien) public view returns (uint256 balance) {
+  function balanceOf(address _quien) public view returns (uint256 _balance) {
     return balance[_quien];
   }
 
@@ -122,6 +126,7 @@ contract Ayusocoin is ERC20 {
 
     // Este mensaje notifica graba en el blockchain que ha ocurrido algo... 
     emit Transfer(_from, _to, _value);
+    return true;
 
   }
 
