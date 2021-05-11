@@ -82,9 +82,9 @@ contract Ayusocoin {
 
   function transfer(address _to, uint256 _value) public returns (bool success) {
 
-    // Antes de mover los tokens hay que asegurarse de que
+    // Antes de mover los tokens hay que asegurarse de que:
     // 1 - Tenemos saldo suficiente 
-    // 2 - Que el que llama la funcion es una persona, no un contrato.
+    // 2 - No nos llaman desde un contrato. Sólo para humanos.
 
     require(balance[msg.sender] >= _value);
     require(msg.sender == tx.origin, 'Humans only');
@@ -102,29 +102,38 @@ contract Ayusocoin {
 
   function transferFrom(address _from, address _to, uint256 _value) public returns (bool success) {
 
-    // Esta funcion es transfer, pero dando con una dirección de origem.
+    // Esta funcion es casi igual que transfer(), pero dando con una dirección de origem.
     // ¿Para qué necesitamos esta función? ¿no basta con transfer() ?
-    // Pues no, esta funcion se llama desde otro  smart contract (como Uniswap, o cualquier otro DEX)
-    // Por eso tenemos ese parámetro "allowance". Para que el smart contract
+    // Pues no, esta funcion se llama desde otro smart contract (como Uniswap, o cualquier otro DEX)
+    // Por eso tenemos ese parámetro "allowance" en ERC20: Para que el smart contract
     // que llama a esta función no nos pueda dejar vacía la billetera.
+    
+    uint256 allowance;
+
+    // Por seguridad evitamos reentrada pero la transacción es más cara (cuesta más gas) :-S
+    allowance = allowed[_from][_to];
+    allowed[_from][_to] = 0;
 
     // Antes de mover los tokens hay que asegurarse de que
     // 1 - Tenemos saldo suficiente 
     // 2 - Se permite mandar esa cantidad al destino
 
     require(balance[_from] >= _value);
-    require(allowed[_from][_to] <=_value );
+    require(allowance <=_value );
 
     // Movemos balances
 
-    balance[msg.sender] -= _value ;
-    if (allowed[msg.sender][_to] < MAX_UINT256) {
-      // Y actualizamos los permisos...
-       allowed[msg.sender][_to] -= _value;
+    if (allowance < MAX_UINT256) { // TODO: comprobar que esto no sea siempre TRUE (para evitar añadir opcodes)
+        // actualizamos los permisos... con cuidado para que no nos ataquen con un underflow.
+        require(allowance - _value < allowance, "Evita integer underflow")
+        allowance -= _value;
+        allowed[msg.sender][_to] = allowance;
     }
-    balance[_to] += _value;
 
-    // Este mensaje notifica graba en el blockchain que ha ocurrido algo... 
+    balance[msg.sender] -= _value ;
+    balance[_to] += _value;  // Lo ultimo que se hace siempre es _mover_ hacia otra direccion,
+
+    // Este mensaje notifica que ha ocurrido algo... (se puede consultar en Etherscan / web3 / infura...)
     emit Transfer(_from, _to, _value);
     return true;
 
@@ -133,7 +142,9 @@ contract Ayusocoin {
   // Gestión de allowance (la asignación)
 
   // approve(_direccion, _valor) -> Aprueba que la dirección haga un gasto
-  // Esta función se suele llamar desde el wallet o una aplicación DEFI.
+  // Esta función se suele llamar desde el wallet.
+  // No queremos que un contrato lo cambie. Sólo personas humanas.
+  
   function approve(address _to, uint256 _value) public returns (bool success) {
     require(msg.sender == tx.origin, "Humans only");
     allowed[msg.sender][_to] = _value;
