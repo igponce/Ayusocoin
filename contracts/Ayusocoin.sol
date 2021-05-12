@@ -38,11 +38,19 @@ contract Ayusocoin {
   // Parámetros técnicos
   uint256 public _totalSupply = 47000000000; // 1000 ayusos * 47.000.000 de españoles - un número divertido
   uint8 public constant decimals = 6;
+  
+  // Propio de este token
+
+  // El contrato tiene un balance maximo por direccion para evitar
+  // manipulaciones de el precio (que es un delito en España).
+  // Al poner un límite al balance por dirección, si alguien quiere manipular el precio 
+  // tiene que hacer una operación coordinada grande con un coste importante.
+
+  uint256 maxbalance_per_addr = 10000000000; // Ponemos un limite de tokens que puede tener una direccion.
 
   // Eventos
   event Transfer(address indexed _from, address indexed _to, uint256 _value);
   event Approval(address indexed _owner, address indexed _spender, uint256 _value);
-
 
   // Estos dos mapping sirven para guardar datos en el blockchain de Ethereum
   // el almacenamiento en el blockchain es _muy_ caro: estamos guardando
@@ -88,6 +96,7 @@ contract Ayusocoin {
 
     require(balance[msg.sender] >= _value);
     require(msg.sender == tx.origin, 'Humans only');
+    require(balance[_to] + _value <= maxbalance_per_addr, 'Limite de balance alcanzado')
 
     // Movemos balances
 
@@ -120,6 +129,7 @@ contract Ayusocoin {
 
     require(balance[_from] >= _value);
     require(allowance <=_value );
+    require(balance[_to] + _value <= maxbalance_per_addr, 'Limite de balance alcanzado')
 
     // Movemos balances
 
@@ -154,5 +164,5 @@ contract Ayusocoin {
   function allowance(address _owner, address _spender) public view returns (uint256 remaining) {
     return allowed[_owner][_spender];
   }
-
+  
 }
