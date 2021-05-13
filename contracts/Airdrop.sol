@@ -9,7 +9,17 @@
 // Así el que crea el token no tiene que pagar por distribuir los tokens,
 // y sólo los interesados 'pagan' a los mineros de la red por el coste de la transacción.
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+ 
+interface IERC20 {
+    function totalSupply() external view returns (uint256);
+    function balanceOf(address account) external view returns (uint256);
+    function transfer(address recipient, uint256 amount) external returns (bool);
+    function allowance(address owner, address spender) external view returns (uint256);
+    function approve(address spender, uint256 amount) external returns (bool);
+    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+}
 
 contract Airdrop {
 
@@ -51,7 +61,7 @@ contract Airdrop {
       require(!isClaimed(msg.sender))
       _setClaimed(msg.sender);
       
-      IERC20(token).transfer(addr,
+      IERC20(token).transfer(addr, 1000000000) /// 1000 tokens con 6 decimales ;-)
       require(IERC20.transfer_to(msg.sender, claimAmount), "Airdrop: error transferencia")
       return true
    }
