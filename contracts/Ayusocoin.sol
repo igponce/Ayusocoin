@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
+
 // Ayusocoin - simple ERC20 token for a campaign to educate
 // spanish politicians about Ethereum and cryptocurrencies
 // in general.
 
-pragma solidity >=0.4.22 < 0.9.0;
+pragma solidity = 0.6.6; // was >=0.4.22 < 0.9.0;
 
 // Interfaz ERC20 - Estandar para tokens sobre Ethereum
 // En Ethereum los "tokens" o "monedas" son contratos.
@@ -96,7 +97,7 @@ contract Ayusocoin {
 
     require(balance[msg.sender] >= _value);
     require(msg.sender == tx.origin, 'Humans only');
-    require(balance[_to] + _value <= maxbalance_per_addr, 'Limite de balance alcanzado')
+    require(balance[_to] + _value <= maxbalance_per_addr, 'Limite de balance alcanzado');
 
     // Movemos balances
 
@@ -129,13 +130,13 @@ contract Ayusocoin {
 
     require(balance[_from] >= _value);
     require(allowance <=_value );
-    require(balance[_to] + _value <= maxbalance_per_addr, 'Limite de balance alcanzado')
+    require(balance[_to] + _value <= maxbalance_per_addr, 'Limite de balance alcanzado');
 
     // Movemos balances
 
     if (allowance < MAX_UINT256) { // TODO: comprobar que esto no sea siempre TRUE (para evitar añadir opcodes)
         // actualizamos los permisos... con cuidado para que no nos ataquen con un underflow.
-        require(allowance - _value < allowance, "Evita integer underflow")
+        require(allowance - _value < allowance, "Evita integer underflow");
         allowance -= _value;
         allowed[msg.sender][_to] = allowance;
     }
