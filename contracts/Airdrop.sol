@@ -9,8 +9,9 @@
 // Así el que crea el token no tiene que pagar por distribuir los tokens,
 // y sólo los interesados 'pagan' a los mineros de la red por el coste de la transacción.
 
+pragma solidity =0.6.6;
  
-interface IERC20 {
+interface ERC20 {
     function totalSupply() external view returns (uint256);
     function balanceOf(address account) external view returns (uint256);
     function transfer(address recipient, uint256 amount) external returns (bool);
@@ -32,7 +33,7 @@ contract Airdrop {
    
    // Primero necesitamos la dirección del contrato del Token
    
-   address public immutable override token;
+   address public immutable token;
 
    // También necesitamos una lista de direcciones.
    // Un "mapping" direccion -> a un 0 o 1 bastaría...
@@ -40,15 +41,18 @@ contract Airdrop {
    // .. así que hay que construirlo a mano.
 
    // este es un bitmap (hay formas más eficientes de hacerlo, pero esta nos sirve)   
-   mapping (address => bool) public claimed
+   mapping (address => uint256) public claimed;
+   uint256 public immutable claimAmount;
+
+   event Claimed(address _by, address _to, uint256 _value);
    
    // Una dirección pública son 160 bits la "parte de arriba" estará a 0.
-   function isClaimed(addr index) public view override returns (bool) {
+   function isClaimed(address index) public view returns (uint256) {
        return claimed[index];
    }
       
-   function _setClaimed(addr) private {
-       claimed[index] = 1;
+   function _setClaimed(address index) private {
+       claimed[index] = claimAmount;
    }
    
    // Esta funcion es la que permite reclamar los tokens.
@@ -56,16 +60,23 @@ contract Airdrop {
    // De todos modos... ¿quién puede querer enviar tokens a otro?
    // Hmm.. ¿puede haber alguna implicación legal de eso?
    
-   function Claim(addr) public boolean {
-      // require(msg.sender == tx.origin, "Only humans")
-      require(!isClaimed(msg.sender))
-      _setClaimed(msg.sender);
-      
-      IERC20(token).transfer(addr, 1000000000) /// 1000 tokens con 6 decimales ;-)
-      require(IERC20.transfer_to(msg.sender, claimAmount), "Airdrop: error transferencia")
-      return true
+   function Claim(address index) public returns (uint256) {
+      // hmm... ¿dejamos que lo haga un contrato?  require(msg.sender == tx.origin, "Only humans");
+      require(isClaimed(index) == 0);
+
+      _setClaimed(index);
+      // Hacemos la transferencia y revertimos operacion si da algún error
+      require(ERC20(token).transfer(msg.sender, claimAmount), "Airdrop: error transferencia");
+      emit Claimed(msg.sender, index, claimAmount);
+      return claimAmount;
    }
    
+   // Necesitamos construir el contrato (instanciar)
    // Constructor
+
+   constructor(address tokenaddr, uint256 claim_by_addr) public {
+       token = tokenaddr;
+       claimAmount = claim_by_addr;
+   }
 
 }
