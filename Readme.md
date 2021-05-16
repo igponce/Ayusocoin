@@ -14,8 +14,17 @@ Fases
 
 1 - Fase inicial - distribución limitada
 
-En la primera fase se mandan varias 'paper wallet' de Ethereum a cargos publicos sin contraprestación alguna.
+En la primera fase se mandan varias 'paper wallet' de Ethereum a distintos políticos españoles **sin contraprestación alguna**.
+El hecho de recibir estas paper wallet no supone la aceptación de estos Tokens.
+Para aceptar un token de forma efectiva, la dirección de la billetera tiene que disponer de Ethereum y transferir esos tokens a otra dirección... 
 
-El valor del token durante esta fase es de cero (0) euros.
+El valor del token al enviarse es de cero (0) euros.
 
-Para evitar que se dé de alta en un "exchange" como Uniswap y comience a fluctuar el valor, se ha limitado el número de tokens por cada dirección ethereum a 5.000 
+2 - Airdrop
+
+En una segunda fase el token se pone a disposición de todos los usuarios de la red Ethereum.
+El mecanismo de distribución es un "Airdrop", que consiste en que cada interesado puede solicitar de un *smart contract* que se le envíen por una sola vez una cantidad de tokens (limitado a 1000 por dirección).
+Los costes/comisiones de recepción de esos tokens por parte de la red son a cargo del interesado.
+
+Para evitar que se dé de alta en un "exchange" como Uniswap y comience a fluctuar el valor, se ha limitado el número de tokens por cada dirección ethereum a 10.000. 
+
