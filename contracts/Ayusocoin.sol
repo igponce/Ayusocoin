@@ -4,7 +4,7 @@
 // spanish politicians about Ethereum and cryptocurrencies
 // in general.
 
-pragma solidity = 0.6.6; // was >=0.4.22 < 0.9.0;
+pragma solidity =0.6.6; // was >=0.4.22 < 0.9.0;
 
 // Interfaz ERC20 - Estandar para tokens sobre Ethereum
 // En Ethereum los "tokens" o "monedas" son contratos.
