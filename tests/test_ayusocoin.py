@@ -1,5 +1,5 @@
 import pytest
-
+import logging
 from brownie import accounts, Ayusocoin, Airdrop, exceptions
 
 @pytest.fixture
@@ -36,7 +36,18 @@ def test_erc20_transfer_sobre_saldo(token):
                      {'from': accounts[0].address})
    
 
-def test_erc20_transfer_limits(token):
+def test_erc20_transfer_sobre_saldo(token):
+
+   start_balance = token.balanceOf(accounts[0])
+   with pytest.raises(exceptions.VirtualMachineError):
+       ret = token.transfer(
+                     accounts[1].address, 
+                     start_balance + 1,
+                     {'from': accounts[0].address, 'origin': accounts[2].address}
+            )
+
+
+def test_erc20_transfer_limits(token): 
 
     tokens_ko = 1 + (10000 * 1000000)
     balance0 = token.balanceOf(accounts[0])
@@ -55,12 +66,48 @@ def test_erc20_transfer_limits(token):
 def test_erc20_transfer_from_sin_permiso(token):
     # Esto se tiene que hacer desde un contrato pero vamos a simularlo
 
-    fromaddr, toaddr = accounts[0].address, accounts[1].address
-    frombal, tobal = token.balanceOf(fromaddr), token.balanceOf(toaddr)
+    orig, dest = accounts[0].address, accounts[1].address
+    origbal, destbal = token.balanceOf(orig), token.balanceOf(dest)
    
     with pytest.raises(exceptions.VirtualMachineError):
-       token.transferFrom(fromaddr, toaddr, 1000)
+       token.transferFrom(orig, dest, 1000)
 
     # Balances sin cambiar
-    assert frombal == token.balanceOf(fromaddr)
-    assert tobal == token.balanceOf(toaddr)
+    assert origbal == token.balanceOf(orig)
+    assert destbal == token.balanceOf(dest)
+
+def test_erc20_transferFrom_sobre_permiso (token):
+    # Esto se tiene que hacer desde un contrato pero vamos a simularlo
+
+    orig, dest = accounts[0].address, accounts[1].address
+    origbal, destbal = token.balanceOf(orig), token.balanceOf(dest)
+
+    numtokens = 100_000_000 # 100.000000 tokens
+
+    token.approve(dest, numtokens)
+   
+    with pytest.raises(exceptions.VirtualMachineError):
+       token.transferFrom(orig, dest, numtokens + 1)
+
+    # Balances sin cambiar
+    assert origbal == token.balanceOf(orig)
+    assert destbal == token.balanceOf(dest)
+
+    # transferencia dentro de lo permitido
+    token.transferFrom(orig, dest, numtokens)
+    assert destbal + numtokens == token.balanceOf(dest)
+    assert origbal - numtokens == token.balanceOf(orig)
+
+def test_erc20_cambia_allowance(token):
+
+    numtokens = 100_000_000;
+    orig = accounts[0].address;
+    dest = accounts[5].address;
+    token.approve(dest, numtokens)
+    token.transferFrom(orig, dest, numtokens / 2)
+
+    assert token.allowance(orig, dest) == numtokens / 2
+
+def test_totalSupply(token):
+
+   token.totalSupply() < token.balanceOf(accounts[0].address)
