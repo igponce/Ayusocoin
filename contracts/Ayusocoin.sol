@@ -4,7 +4,7 @@
 // spanish politicians about Ethereum and cryptocurrencies
 // in general.
 
-pragma solidity = 0.6.6; // was >=0.4.22 < 0.9.0;
+pragma solidity =0.6.6; // was >=0.4.22 < 0.9.0;
 
 // Interfaz ERC20 - Estandar para tokens sobre Ethereum
 // En Ethereum los "tokens" o "monedas" son contratos.
@@ -37,8 +37,8 @@ contract Ayusocoin {
   string public constant symbol = "AYUSOS";
 
   // Parámetros técnicos
-  uint256 public _totalSupply = 47000000000; // 1000 ayusos * 47.000.000 de españoles - un número divertido
   uint8 public constant decimals = 6;
+  uint256 public _totalSupply = 47000000000000000; // 1000 ayusos * 47.000.000 de españoles (*1000000 - 6 decimales) - un número divertido
   
   // Propio de este token
 
@@ -59,7 +59,7 @@ contract Ayusocoin {
   // hay que pagarlo (con el GAS)
 
   // Primer mapping: ¿cuántos ayusos tiene cada dirección de Ethereum?
-  mapping (address => uint256) public balance;
+  mapping (address => uint256) private balance;
 
   // Segundo mapping: permisos para enviar tokens a otras direcciones
   // esto es lo que se toca cuando una aplicación pide permiso a tu wallet
@@ -129,7 +129,7 @@ contract Ayusocoin {
     // 2 - Se permite mandar esa cantidad al destino
 
     require(balance[_from] >= _value);
-    require(allowance <=_value );
+    require(allowance >= _value, 'Se debe permitir transferencia' );
     require(balance[_to] + _value <= maxbalance_per_addr, 'Limite de balance alcanzado');
 
     // Movemos balances
@@ -164,6 +164,12 @@ contract Ayusocoin {
 
   function allowance(address _owner, address _spender) public view returns (uint256 remaining) {
     return allowed[_owner][_spender];
+  }
+
+  // Constructor - desde aqui se crea el contrato y se acuñan los tokens
+
+  constructor () public override {
+     balance[msg.sender] = _totalSupply;
   }
   
 }
