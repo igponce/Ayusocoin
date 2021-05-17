@@ -37,8 +37,8 @@ contract Ayusocoin {
   string public constant symbol = "AYUSOS";
 
   // Parámetros técnicos
-  uint256 public _totalSupply = 47000000000; // 1000 ayusos * 47.000.000 de españoles - un número divertido
   uint8 public constant decimals = 6;
+  uint256 public _totalSupply = 47000000000000000; // 1000 ayusos * 47.000.000 de españoles (*1000000 - 6 decimales) - un número divertido
   
   // Propio de este token
 
@@ -164,6 +164,12 @@ contract Ayusocoin {
 
   function allowance(address _owner, address _spender) public view returns (uint256 remaining) {
     return allowed[_owner][_spender];
+  }
+
+  // Constructor - desde aqui se crea el contrato y se acuñan los tokens
+
+  constructor () public override {
+     balance[msg.sender] = _totalSupply;
   }
   
 }
