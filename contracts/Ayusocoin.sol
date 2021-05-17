@@ -59,7 +59,7 @@ contract Ayusocoin {
   // hay que pagarlo (con el GAS)
 
   // Primer mapping: ¿cuántos ayusos tiene cada dirección de Ethereum?
-  mapping (address => uint256) public balance;
+  mapping (address => uint256) private balance;
 
   // Segundo mapping: permisos para enviar tokens a otras direcciones
   // esto es lo que se toca cuando una aplicación pide permiso a tu wallet
@@ -129,7 +129,7 @@ contract Ayusocoin {
     // 2 - Se permite mandar esa cantidad al destino
 
     require(balance[_from] >= _value);
-    require(allowance <=_value );
+    require(allowance >= _value, 'Se debe permitir transferencia' );
     require(balance[_to] + _value <= maxbalance_per_addr, 'Limite de balance alcanzado');
 
     // Movemos balances
