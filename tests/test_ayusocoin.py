@@ -1,6 +1,6 @@
 import pytest
 import logging
-from brownie import accounts, Ayusocoin, Airdrop, exceptions
+from brownie import accounts, Ayusocoin, exceptions
 
 @pytest.fixture
 def token():
