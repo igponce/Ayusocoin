@@ -98,7 +98,7 @@ def test_erc20_transferFrom_sobre_permiso (token):
     assert destbal + numtokens == token.balanceOf(dest)
     assert origbal - numtokens == token.balanceOf(orig)
 
-def test_erc20_cambia_allowance(token):
+def test_erc20_transferFrom_cambia_allowance(token):
 
     numtokens = 100_000_000;
     orig = accounts[0].address;
@@ -107,6 +107,16 @@ def test_erc20_cambia_allowance(token):
     token.transferFrom(orig, dest, numtokens / 2)
 
     assert token.allowance(orig, dest) == numtokens / 2
+
+def test_erc20_allowance_ilimitado(token):
+    # Cuando el allowance es uint256max, no se cambia.
+    allowance_ilimitado = 0xffff_ffff_ffff_ffff_ffff_ffff_ffff_ffff
+    numtokens = 100_000_000;
+    orig = accounts[0].address;
+    dest = accounts[6].address;
+    token.approve(dest, allowance_ilimitado)
+    assert token.allowance(orig, dest) == allowance_ilimitado
+     
 
 def test_totalSupply(token):
 
