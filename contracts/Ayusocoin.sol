@@ -87,8 +87,8 @@ contract Ayusocoin {
   */
 
   // La funcion transfer(to,value) ordena uan transferencia de los tokens.
-  // La usamos nosotros directamente, no un smart contract contrato.
-
+  // Se utiliza por el dueño de los tokens (sea o no un contrato).
+  
   function transfer(address _to, uint256 _value) public returns (bool success) {
 
     // Antes de mover los tokens hay que asegurarse de que:
@@ -96,7 +96,7 @@ contract Ayusocoin {
     // 2 - No nos llaman desde un contrato. Sólo para humanos.
 
     require(balance[msg.sender] >= _value);
-    require(msg.sender == tx.origin, 'Humans only');
+    // require(msg.sender == tx.origin, 'Humans only');
     require(balance[_to] + _value <= maxbalance_per_addr, 'Limite de balance alcanzado');
 
     // Movemos balances

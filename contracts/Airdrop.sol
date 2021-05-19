@@ -63,10 +63,9 @@ contract Airdrop {
    function Claim(address index) public returns (uint256) {
       // hmm... ¿dejamos que lo haga un contrato?  require(msg.sender == tx.origin, "Only humans");
       require(isClaimed(index) == 0);
-
       _setClaimed(index);
       // Hacemos la transferencia y revertimos operacion si da algún error
-      require(ERC20(token).transfer(msg.sender, claimAmount), "Airdrop: error transferencia");
+      require(ERC20(token).transfer(index, claimAmount), "Airdrop: error transferencia");
       emit Claimed(msg.sender, index, claimAmount);
       return claimAmount;
    }
