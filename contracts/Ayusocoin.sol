@@ -122,7 +122,6 @@ contract Ayusocoin {
 
     // Por seguridad evitamos reentrada pero la transacción es más cara (cuesta más gas) :-S
     allowance = allowed[_from][_to];
-    allowed[_from][_to] = 0;
 
     // Antes de mover los tokens hay que asegurarse de que
     // 1 - Tenemos saldo suficiente 
@@ -134,9 +133,10 @@ contract Ayusocoin {
 
     // Movemos balances
 
-    if (allowance < MAX_UINT256) { // TODO: comprobar que esto no sea siempre TRUE (para evitar añadir opcodes)
+    if (allowance < MAX_UINT256) {
         // actualizamos los permisos... con cuidado para que no nos ataquen con un underflow.
         require(allowance - _value < allowance, "Evita integer underflow");
+        allowed[_from][_to] = 0;
         allowance -= _value;
         allowed[msg.sender][_to] = allowance;
     }

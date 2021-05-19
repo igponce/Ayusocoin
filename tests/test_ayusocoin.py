@@ -110,13 +110,22 @@ def test_erc20_transferFrom_cambia_allowance(token):
 
 def test_erc20_allowance_ilimitado(token):
     # Cuando el allowance es uint256max, no se cambia.
-    allowance_ilimitado = 0xffff_ffff_ffff_ffff_ffff_ffff_ffff_ffff
+    allowance_ilimitado = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+                          
     numtokens = 100_000_000;
     orig = accounts[0].address;
     dest = accounts[6].address;
+
+    assert token.allowance(orig, dest) == 0 
     token.approve(dest, allowance_ilimitado)
     assert token.allowance(orig, dest) == allowance_ilimitado
+
+    token.transferFrom(orig, dest, numtokens / 2)
+    assert token.allowance(orig, dest) == allowance_ilimitado
      
+def test_erc20_transferFrom(token):
+
+    assert True
 
 def test_totalSupply(token):
 
