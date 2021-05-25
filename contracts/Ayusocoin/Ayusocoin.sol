@@ -4,7 +4,7 @@
 // spanish politicians about Ethereum and cryptocurrencies
 // in general.
 
-pragma solidity =0.6.6; // was >=0.4.22 < 0.9.0;
+pragma solidity >=0.6.6; // was >=0.4.22 < 0.9.0;
 
 // Interfaz ERC20 - Estandar para tokens sobre Ethereum
 // En Ethereum los "tokens" o "monedas" son contratos.
@@ -118,27 +118,27 @@ contract Ayusocoin {
     // Por eso tenemos ese parámetro "allowance" en ERC20: Para que el smart contract
     // que llama a esta función no nos pueda dejar vacía la billetera.
     
-    uint256 allowance;
+    uint256 limit;
 
     // Por seguridad evitamos reentrada pero la transacción es más cara (cuesta más gas) :-S
-    allowance = allowed[_from][_to];
+    limit = allowed[_from][_to];
 
     // Antes de mover los tokens hay que asegurarse de que
     // 1 - Tenemos saldo suficiente 
     // 2 - Se permite mandar esa cantidad al destino
 
     require(balance[_from] >= _value);
-    require(allowance >= _value, 'Se debe permitir transferencia' );
+    require(limit >= _value, 'Se debe permitir transferencia' );
     require(balance[_to] + _value <= maxbalance_per_addr, 'Limite de balance alcanzado');
 
     // Movemos balances
 
-    if (allowance < MAX_UINT256) {
+    if (limit < MAX_UINT256) {
         // actualizamos los permisos... con cuidado para que no nos ataquen con un underflow.
-        require(allowance - _value < allowance, "Evita integer underflow");
+        require(limit - _value < limit, "Evita integer underflow");
         allowed[_from][_to] = 0;
-        allowance -= _value;
-        allowed[msg.sender][_to] = allowance;
+        limit -= _value;
+        allowed[msg.sender][_to] = limit;
     }
 
     balance[msg.sender] -= _value ;
@@ -168,7 +168,7 @@ contract Ayusocoin {
 
   // Constructor - desde aqui se crea el contrato y se acuñan los tokens
 
-  constructor () public override {
+  constructor () {
      balance[msg.sender] = _totalSupply;
   }
   

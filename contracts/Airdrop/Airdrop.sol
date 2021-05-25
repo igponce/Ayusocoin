@@ -1,5 +1,6 @@
-// Airdrop contract
+// SPDX-License-Identifier: MIT
 
+// Airdrop contract
 // Para no tener que dar uno a uno los tokens, tenemos este contrato de Airdrop.
 //
 // ¿Qué es un Airdrop? es una forma muy común de distribuir nuevos Tokens.
@@ -9,7 +10,7 @@
 // Así el que crea el token no tiene que pagar por distribuir los tokens,
 // y sólo los interesados 'pagan' a los mineros de la red por el coste de la transacción.
 
-pragma solidity =0.6.6;
+pragma solidity >=0.6.6;
  
 interface ERC20 {
     function totalSupply() external view returns (uint256);
@@ -46,13 +47,14 @@ contract Airdrop {
 
    event Claimed(address _by, address _to, uint256 _value);
    
-   // Una dirección pública son 160 bits la "parte de arriba" estará a 0.
-   function isClaimed(address index) public view returns (uint256) {
+   // Cantidad solicitada por cada dirección
+   function ClaimedAmount(address index) public view returns (uint256) {
        return claimed[index];
    }
       
    function _setClaimed(address index) private {
-       claimed[index] = claimAmount;
+       require(claimed[index] == 0);
+       claimed[index] += claimAmount;  // No puede desbordar
    }
    
    // Esta funcion es la que permite reclamar los tokens.
@@ -61,8 +63,9 @@ contract Airdrop {
    // Hmm.. ¿puede haber alguna implicación legal de eso?
    
    function Claim(address index) public returns (uint256) {
-      // hmm... ¿dejamos que lo haga un contrato?  require(msg.sender == tx.origin, "Only humans");
-      require(isClaimed(index) == 0);
+      // hmm... ¿dejamos que lo haga un contrato?
+      // si no => require(msg.sender == tx.origin, "Only humans");
+      require(ClaimedAmount(index) == 0);
       _setClaimed(index);
       // Hacemos la transferencia y revertimos operacion si da algún error
       require(ERC20(token).transfer(index, claimAmount), "Airdrop: error transferencia");
@@ -73,7 +76,7 @@ contract Airdrop {
    // Necesitamos construir el contrato (instanciar)
    // Constructor
 
-   constructor(address tokenaddr, uint256 claim_by_addr) public {
+   constructor(address tokenaddr, uint256 claim_by_addr) {
        token = tokenaddr;
        claimAmount = claim_by_addr;
    }
