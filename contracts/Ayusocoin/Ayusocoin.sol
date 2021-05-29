@@ -49,6 +49,8 @@ contract Ayusocoin {
 
   uint256 maxbalance_per_addr = 10000000000; // Ponemos un limite de tokens que puede tener una direccion.
 
+  address _root ; // Direccion del superusuario del contrato: puede cambiar los limites y parámetros
+
   // Eventos
   event Transfer(address indexed _from, address indexed _to, uint256 _value);
   event Approval(address indexed _owner, address indexed _spender, uint256 _value);
@@ -170,6 +172,15 @@ contract Ayusocoin {
 
   constructor () {
      balance[msg.sender] = _totalSupply;
+     _root = tx.origin; // Direccion del dueño del contrato
   }
-  
+
+  function getRoot() public returns (address) {
+     return _root;
+  }
+
+  function isRoot() public returns (bool) {
+     return tx.origin == _root;
+  }
+
 }

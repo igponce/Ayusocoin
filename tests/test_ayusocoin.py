@@ -130,3 +130,8 @@ def test_erc20_transferFrom(token):
 def test_totalSupply(token):
 
    token.totalSupply() < token.balanceOf(accounts[0].address)
+
+def test_erc20_isRoot(token):
+    assert token.isRoot({"from": accounts[1].address}).return_value == False
+    assert token.isRoot({"from": accounts[0].address}).return_value == True
+
