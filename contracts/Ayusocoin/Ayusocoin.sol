@@ -4,7 +4,7 @@
 // spanish politicians about Ethereum and cryptocurrencies
 // in general.
 
-pragma solidity =0.6.6; // was >=0.4.22 < 0.9.0;
+pragma solidity >=0.6.6; // was >=0.4.22 < 0.9.0;
 
 // Interfaz ERC20 - Estandar para tokens sobre Ethereum
 // En Ethereum los "tokens" o "monedas" son contratos.
@@ -49,6 +49,8 @@ contract Ayusocoin {
 
   uint256 maxbalance_per_addr = 10000000000; // Ponemos un limite de tokens que puede tener una direccion.
 
+  address _root ; // Direccion del superusuario del contrato: puede cambiar los limites y parámetros
+
   // Eventos
   event Transfer(address indexed _from, address indexed _to, uint256 _value);
   event Approval(address indexed _owner, address indexed _spender, uint256 _value);
@@ -87,8 +89,8 @@ contract Ayusocoin {
   */
 
   // La funcion transfer(to,value) ordena uan transferencia de los tokens.
-  // La usamos nosotros directamente, no un smart contract contrato.
-
+  // Se utiliza por el dueño de los tokens (sea o no un contrato).
+  
   function transfer(address _to, uint256 _value) public returns (bool success) {
 
     // Antes de mover los tokens hay que asegurarse de que:
@@ -96,7 +98,7 @@ contract Ayusocoin {
     // 2 - No nos llaman desde un contrato. Sólo para humanos.
 
     require(balance[msg.sender] >= _value);
-    require(msg.sender == tx.origin, 'Humans only');
+    // require(msg.sender == tx.origin, 'Humans only');
     require(balance[_to] + _value <= maxbalance_per_addr, 'Limite de balance alcanzado');
 
     // Movemos balances
@@ -118,27 +120,27 @@ contract Ayusocoin {
     // Por eso tenemos ese parámetro "allowance" en ERC20: Para que el smart contract
     // que llama a esta función no nos pueda dejar vacía la billetera.
     
-    uint256 allowance;
+    uint256 limit;
 
     // Por seguridad evitamos reentrada pero la transacción es más cara (cuesta más gas) :-S
-    allowance = allowed[_from][_to];
-    allowed[_from][_to] = 0;
+    limit = allowed[_from][_to];
 
     // Antes de mover los tokens hay que asegurarse de que
     // 1 - Tenemos saldo suficiente 
     // 2 - Se permite mandar esa cantidad al destino
 
     require(balance[_from] >= _value);
-    require(allowance >= _value, 'Se debe permitir transferencia' );
+    require(limit >= _value, 'Se debe permitir transferencia' );
     require(balance[_to] + _value <= maxbalance_per_addr, 'Limite de balance alcanzado');
 
     // Movemos balances
 
-    if (allowance < MAX_UINT256) { // TODO: comprobar que esto no sea siempre TRUE (para evitar añadir opcodes)
+    if (limit < MAX_UINT256) {
         // actualizamos los permisos... con cuidado para que no nos ataquen con un underflow.
-        require(allowance - _value < allowance, "Evita integer underflow");
-        allowance -= _value;
-        allowed[msg.sender][_to] = allowance;
+        require(limit - _value < limit, "Evita integer underflow");
+        allowed[_from][_to] = 0;
+        limit -= _value;
+        allowed[msg.sender][_to] = limit;
     }
 
     balance[msg.sender] -= _value ;
@@ -168,8 +170,17 @@ contract Ayusocoin {
 
   // Constructor - desde aqui se crea el contrato y se acuñan los tokens
 
-  constructor () public override {
+  constructor () {
      balance[msg.sender] = _totalSupply;
+     _root = tx.origin; // Direccion del dueño del contrato
   }
-  
+
+  function getRoot() public returns (address) {
+     return _root;
+  }
+
+  function isRoot() public returns (bool) {
+     return tx.origin == _root;
+  }
+
 }
