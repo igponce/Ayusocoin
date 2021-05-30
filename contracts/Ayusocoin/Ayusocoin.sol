@@ -43,11 +43,12 @@ contract Ayusocoin {
   // Propio de este token
 
   // El contrato tiene un balance maximo por direccion para evitar
-  // manipulaciones de el precio (que es un delito en España).
+  // que se haga trading con el token durante los primeros días.
+  // Tambien sirve para "pausar" temporalmente el movimiento del token de un usuario a otro.
   // Al poner un límite al balance por dirección, si alguien quiere manipular el precio 
   // tiene que hacer una operación coordinada grande con un coste importante.
 
-  uint256 maxbalance_per_addr = 10000000000; // Ponemos un limite de tokens que puede tener una direccion.
+  uint256 public maxbalance_per_addr = 10000000000; // El limite de tokens que puede tener una direccion.
 
   address _root ; // Direccion del superusuario del contrato: puede cambiar los limites y parámetros
 
@@ -83,6 +84,26 @@ contract Ayusocoin {
   function balanceOf(address _quien) public view returns (uint256 _balance) {
     return balance[_quien];
   }
+
+  /*
+  ** Gestion del contrato por el superusuario.
+  */
+
+  function getRoot() public view returns (address) {
+     return _root;
+  }
+
+  function isRoot() public view returns (bool) {
+     return tx.origin == _root;
+  }
+
+
+  function setMaxBalancePerAddress(uint256 maxbal) public returns (uint256) {
+      require(isRoot()); // OnlyRoot
+      maxbalance_per_addr = maxbal;
+      return maxbal;
+  }
+
 
   /*
   ** A partir de aqui _movemos_ "dinero" virtual.
@@ -161,6 +182,8 @@ contract Ayusocoin {
   function approve(address _to, uint256 _value) public returns (bool success) {
     require(msg.sender == tx.origin, "Humans only");
     allowed[msg.sender][_to] = _value;
+    emit Approval(msg.sender, _to, _value);
+
     return true;
   }
 
@@ -173,14 +196,6 @@ contract Ayusocoin {
   constructor () {
      balance[msg.sender] = _totalSupply;
      _root = tx.origin; // Direccion del dueño del contrato
-  }
-
-  function getRoot() public returns (address) {
-     return _root;
-  }
-
-  function isRoot() public returns (bool) {
-     return tx.origin == _root;
   }
 
 }

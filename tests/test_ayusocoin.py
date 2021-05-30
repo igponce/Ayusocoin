@@ -1,3 +1,4 @@
+import brownie
 import pytest
 import logging
 from brownie import accounts, Ayusocoin, exceptions
@@ -122,16 +123,25 @@ def test_erc20_allowance_ilimitado(token):
 
     token.transferFrom(orig, dest, numtokens / 2)
     assert token.allowance(orig, dest) == allowance_ilimitado
-     
-def test_erc20_transferFrom(token):
-
-    assert True
 
 def test_totalSupply(token):
-
    token.totalSupply() < token.balanceOf(accounts[0].address)
 
-def test_erc20_isRoot(token):
+def test_erc20_contract_creator_isRoot(token):
     assert token.isRoot({"from": accounts[1].address}).return_value == False
     assert token.isRoot({"from": accounts[0].address}).return_value == True
 
+
+def test_erc20_solo_root_cambia_max_balance(token):
+
+    token.setMaxBalancePerAddress(123, {"from": accounts[0].address})
+    for somedir in [acc.address for acc in accounts[1:] ] :
+        with brownie.reverts():
+            token.setMaxBalancePerAddress(234, {"from": somedir})
+
+
+def test_erc20_cambia_max_balance(token):
+    root = accounts[0].address
+    token.setMaxBalancePerAddress(100, {"from": root})
+    with brownie.reverts():
+       token.transfer(accounts[1].address, 200, {"from": root})
