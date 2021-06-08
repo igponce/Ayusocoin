@@ -37,7 +37,9 @@ def test_erc20_transfer_sobre_saldo(token):
                      {'from': accounts[0].address})
    
 
-def test_erc20_transfer_sobre_saldo(token):
+def test_erc20_transfer_no_tengo_dinero(token):
+
+   # Como https://youtu.be/4IAPcn4sR0I (canción del verano del 84 :D )
 
    start_balance = token.balanceOf(accounts[0])
    with pytest.raises(exceptions.VirtualMachineError):
@@ -127,21 +129,36 @@ def test_erc20_allowance_ilimitado(token):
 def test_totalSupply(token):
    token.totalSupply() < token.balanceOf(accounts[0].address)
 
+
 def test_erc20_contract_creator_isRoot(token):
-    assert token.isRoot({"from": accounts[1].address}).return_value == False
-    assert token.isRoot({"from": accounts[0].address}).return_value == True
+    
+    (addr1, addr2) = (accounts[i].address for i in (0,1))
 
+    # addr1 desplegó el contrato - _root == addr1
+    assert token.isRoot(addr1) == True
+    assert token.isRoot(addr2) == False
 
-def test_erc20_solo_root_cambia_max_balance(token):
+    token.setRoot(addr2, {'from': addr1})
+    assert token.getRoot() == addr2
+    assert token.isRoot(addr1) == False
+    assert token.isRoot(addr2) == True
 
-    token.setMaxBalancePerAddress(123, {"from": accounts[0].address})
+def test_erc20_root_cambia_max_balance(token):
+    root = accounts[0].address
+    cantidad_max = 100
+    token.setMaxBalancePerAddress(cantidad_max, {"from": root})
+
+    assert token.maxbalance_per_addr() == cantidad_max
+
+    with brownie.reverts():
+       token.transfer(accounts[1].address, cantidad_max + 1, {"from": root})
+
+def test_erc20_solo_root_puede_cambiar_max_balance(token):
+    maxbal_ok, maxbal_ko = 1234, 2345
+
+    token.setMaxBalancePerAddress(maxbal_ok, {"from": accounts[0].address})
     for somedir in [acc.address for acc in accounts[1:] ] :
         with brownie.reverts():
-            token.setMaxBalancePerAddress(234, {"from": somedir})
+            token.setMaxBalancePerAddress(maxbal_ko, {"from": somedir})
 
-
-def test_erc20_cambia_max_balance(token):
-    root = accounts[0].address
-    token.setMaxBalancePerAddress(100, {"from": root})
-    with brownie.reverts():
-       token.transfer(accounts[1].address, 200, {"from": root})
+    assert token.maxbalance_per_addr() == maxbal_ok
