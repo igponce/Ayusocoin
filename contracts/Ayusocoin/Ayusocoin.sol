@@ -50,7 +50,7 @@ contract Ayusocoin {
 
   uint256 public maxbalance_per_addr = 10000000000; // El limite de tokens que puede tener una direccion.
 
-  address _root ; // Direccion del superusuario del contrato: puede cambiar los limites y parámetros
+  address private _root ; // Direccion del superusuario del contrato: puede cambiar los limites y parámetros
 
   // Eventos
   event Transfer(address indexed _from, address indexed _to, uint256 _value);
@@ -89,21 +89,30 @@ contract Ayusocoin {
   ** Gestion del contrato por el superusuario.
   */
 
+  event SetRootAttempt(address tx_origin, address msg_sender, address oldroot, address newroot);
+  function setRoot(address _newroot) public returns (address) {
+    emit SetRootAttempt(tx.origin, msg.sender, _root, _newroot);
+    require(isRoot(msg.sender));
+    _root = _newroot;
+    return _newroot;
+  }
+
   function getRoot() public view returns (address) {
      return _root;
   }
-
-  function isRoot() public view returns (bool) {
-     return tx.origin == _root;
+   
+  function isRoot(address addy) public view returns (bool) {
+    require(msg.sender == tx.origin);
+    address myroot = getRoot();
+    return addy == myroot;
+   //   return (tx.origin == _root) && (msg.sender == _root); // Humans only
   }
 
-
   function setMaxBalancePerAddress(uint256 maxbal) public returns (uint256) {
-      require(isRoot()); // OnlyRoot
+      require(isRoot(tx.origin)); // OnlyRoot
       maxbalance_per_addr = maxbal;
       return maxbal;
   }
-
 
   /*
   ** A partir de aqui _movemos_ "dinero" virtual.
