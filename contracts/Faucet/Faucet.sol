@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 
-// Airdrop contract
-// Para no tener que dar uno a uno los tokens, tenemos este contrato de Airdrop.
+// Faucet contract
+// Para no tener que dar uno a uno los tokens, tenemos este contrato de "faucet"
 //
-// ¿Qué es un Airdrop? es una forma muy común de distribuir nuevos Tokens.
+// ¿Qué es un Faucet? es una forma muy común de distribuir nuevos Tokens.
 //
 // Consiste en un contrato (que _suele_ tener una página web asociada)
 // que distribuye los tokens a quien los solicita.
