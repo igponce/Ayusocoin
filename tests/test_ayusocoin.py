@@ -1,7 +1,6 @@
-import brownie
 import pytest
 import logging
-from brownie import accounts, Ayusocoin, TestProxy, exceptions
+from brownie import accounts, Ayusocoin, TestProxy, exceptions, reverts
 
 @pytest.fixture
 def token():
@@ -89,7 +88,7 @@ def test_erc20_transferFrom_via_proxy(proxycontract):
      orig, dest = accounts[1].address, accounts[2].address
 
      # Tiene que fallar si no hay autorizacion
-     with brownie.reverts():
+     with reverts():
          token.transferFrom(orig, dest, 1234)
 
 def test_erc20_transferFrom_sobre_permiso (token):
@@ -163,7 +162,7 @@ def test_erc20_root_cambia_max_balance(token):
 
     assert token.maxbalance_per_addr() == cantidad_max
 
-    with brownie.reverts():
+    with reverts():
        token.transfer(accounts[1].address, cantidad_max + 1, {"from": root})
 
 def test_erc20_solo_root_puede_cambiar_max_balance(token):
@@ -171,7 +170,7 @@ def test_erc20_solo_root_puede_cambiar_max_balance(token):
 
     token.setMaxBalancePerAddress(maxbal_ok, {"from": accounts[0].address})
     for somedir in [acc.address for acc in accounts[1:] ] :
-        with brownie.reverts():
+        with reverts():
             token.setMaxBalancePerAddress(maxbal_ko, {"from": somedir})
 
     assert token.maxbalance_per_addr() == maxbal_ok
