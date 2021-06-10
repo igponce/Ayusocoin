@@ -4,7 +4,7 @@
 // spanish politicians about Ethereum and cryptocurrencies
 // in general.
 
-pragma solidity >=0.6.6; // was >=0.4.22 < 0.9.0;
+pragma solidity >=0.6.6; 
 
 // Interfaz ERC20 - Estandar para tokens sobre Ethereum
 // En Ethereum los "tokens" o "monedas" son contratos.
@@ -14,8 +14,8 @@ pragma solidity >=0.6.6; // was >=0.4.22 < 0.9.0;
 // Es decir, primero decimos qué cosas se pueden hacer con el contrato
 // y después ponemos el código del contrato.
 
-/* 
-/  function totalSupply() public returns (uint256 supply);
+/* Esto el lo que implementa el contrato:
+  function totalSupply() public returns (uint256 supply);
   function balanceOf(address _owner) public returns (uint256 balance);
   function transfer(address _to, uint256 _value) public returns (bool success);
   function transferFrom(address _from, address _to, uint256 _value) public returns (bool success);
@@ -208,3 +208,4 @@ contract Ayusocoin {
   }
 
 }
+

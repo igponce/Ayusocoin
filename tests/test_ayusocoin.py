@@ -85,12 +85,12 @@ def test_erc20_transfer_from_sin_permiso(token):
 
 
 def test_erc20_transferFrom_via_proxy(proxycontract):
-    proxy, token = proxycontract['proxy'], proxycontract['token']
-    orig, dest = accounts[1].address, accounts[2].address
+     proxy, token = proxycontract['proxy'], proxycontract['token']
+     orig, dest = accounts[1].address, accounts[2].address
 
-    # Tiene que fallar si no hay autorizacion
-    with brownie.reverts():
-        token.transferFrom(orig, dest, 1234)
+     # Tiene que fallar si no hay autorizacion
+     with brownie.reverts():
+         token.transferFrom(orig, dest, 1234)
 
 def test_erc20_transferFrom_sobre_permiso (token):
     # Esto se tiene que hacer desde un contrato pero vamos a simularlo
