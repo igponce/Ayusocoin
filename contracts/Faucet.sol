@@ -26,6 +26,7 @@ contract Faucet {
    // Primero necesitamos la dirección del contrato del Token
    
    address public immutable token;
+   address public immutable _root;
 
    // También necesitamos una lista de direcciones.
    // Un "mapping" direccion -> a un 0 o 1 bastaría...
@@ -63,6 +64,15 @@ contract Faucet {
       emit Claimed(msg.sender, index, claimAmount);
       return claimAmount;
    }
+
+   // Cuando acabe el tiempo del airdrop se pueden recuperar
+   // Si hay alguna logica en el token que no lo permita...
+
+   function Recovertokens() public returns (bool) {
+      require(tx.origin == _root, "tx.origin is not root");
+      uint256 allbalance = iERC20(token).balanceOf(address(this));
+      return iERC20(token).transfer(_root, allbalance);
+   }
    
    // Necesitamos construir el contrato (instanciar)
    // Constructor
@@ -70,6 +80,7 @@ contract Faucet {
    constructor(address tokenaddr, uint256 claim_by_addr) {
        token = tokenaddr;
        claimAmount = claim_by_addr;
+       _root = tx.origin;  // La persona (humana?) que crea el contrato.
    }
 
 }
