@@ -1,6 +1,8 @@
 import pytest
 import logging
-from brownie import accounts, Faucet, Ayusocoin, exceptions
+from web3 import Web3
+from brownie import accounts, exceptions, reverts, Ayusocoin, Faucet
+
 
 @pytest.fixture
 def token_faucet():
@@ -44,4 +46,29 @@ def test_faucet_clain_only_once(token_faucet):
     assert balance_before == 0
     assert balance_afterclaim1 > 0
     assert balance_afterclaim2 == balance_afterclaim1
+
+
+def test_faucet_recovertokens_by_owner(token_faucet):
+    token, faucet = token_faucet
+    root = accounts[0].address;
+    noroot = accounts[1].address;
+    faucet_balance = token.balanceOf(faucet.address)
+
+    # Cambiamos el saldo maximo como _root del token o no funcionará
+    maxtokens = token.totalSupply()
+    token.setMaxBalancePerAddress(maxtokens)
+
+    # Root es el superuser del contrato faucet. noroot, no lo es
+
+    faucet_root = faucet._root()
+    assert noroot != faucet_root
+    assert root == faucet_root
+
+    with reverts():
+       tx = faucet.Recovertokens({'from': noroot})
+    
+    assert token.balanceOf(faucet.address) == faucet_balance
+
+    tx = faucet.Recovertokens()
+    assert token.balanceOf(faucet.address) == 0
 
