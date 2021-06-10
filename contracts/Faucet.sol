@@ -10,22 +10,13 @@
 // Así el que crea el token no tiene que pagar por distribuir los tokens,
 // y sólo los interesados 'pagan' a los mineros de la red por el coste de la transacción.
 
-pragma solidity >=0.6.6;
+pragma solidity >=0.7.0;
+
+import "../interfaces/IERC20.sol";
  
-interface ERC20 {
-    function totalSupply() external view returns (uint256);
-    function balanceOf(address account) external view returns (uint256);
-    function transfer(address recipient, uint256 amount) external returns (bool);
-    function allowance(address owner, address spender) external view returns (uint256);
-    function approve(address spender, uint256 amount) external returns (bool);
-    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
-    event Transfer(address indexed from, address indexed to, uint256 value);
-    event Approval(address indexed owner, address indexed spender, uint256 value);
-}
+contract Faucet {
 
-contract Airdrop {
-
-   // Vamos a hacer un Airdrop _muy_ sencillo:
+   // Vamos a hacer un Faucet_muy_ sencillo:
    //   - No podemos saber de qué país es cada dirección así que:
    //   - Cada dirección de Ethereum debe poder participar en el Airdrop.
    //   - A cada dirección que lo solicite le transferimos 1000 unidades del tocken.
@@ -68,7 +59,7 @@ contract Airdrop {
       require(ClaimedAmount(index) == 0);
       _setClaimed(index);
       // Hacemos la transferencia y revertimos operacion si da algún error
-      require(ERC20(token).transfer(index, claimAmount), "Airdrop: error transferencia");
+      require(iERC20(token).transfer(index, claimAmount), "Airdrop: error transferencia");
       emit Claimed(msg.sender, index, claimAmount);
       return claimAmount;
    }
