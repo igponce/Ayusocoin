@@ -1,15 +1,18 @@
 import brownie
 import pytest
 import logging
-from brownie import accounts, Ayusocoin, exceptions
+from brownie import accounts, Ayusocoin, TestProxy, exceptions
 
 @pytest.fixture
 def token():
    return accounts[0].deploy(Ayusocoin)
 
 @pytest.fixture
-def airdrop():
-   return accounts[0].deploy(Airdrop)
+def proxycontract():
+   token = accounts[0].deploy(Ayusocoin)
+   testproxy = accounts[0].deploy(TestProxy, (token.address))
+   return { 'token' : token, 'proxy': testproxy}
+
 
 def test_contract_deployer_tiene_todo_balance(token):
     assert token.balanceOf(accounts[0].address) == 47000000 * 1000000 * 1000
@@ -73,11 +76,21 @@ def test_erc20_transfer_from_sin_permiso(token):
     origbal, destbal = token.balanceOf(orig), token.balanceOf(dest)
    
     with pytest.raises(exceptions.VirtualMachineError):
+       # Hace falta permitirlo o fallará
        token.transferFrom(orig, dest, 1000)
 
     # Balances sin cambiar
     assert origbal == token.balanceOf(orig)
     assert destbal == token.balanceOf(dest)
+
+
+def test_erc20_transferFrom_via_proxy(proxycontract):
+    proxy, token = proxycontract['proxy'], proxycontract['token']
+    orig, dest = accounts[1].address, accounts[2].address
+
+    # Tiene que fallar si no hay autorizacion
+    with brownie.reverts():
+        token.transferFrom(orig, dest, 1234)
 
 def test_erc20_transferFrom_sobre_permiso (token):
     # Esto se tiene que hacer desde un contrato pero vamos a simularlo
