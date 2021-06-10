@@ -25,7 +25,7 @@ networks:
 compiler:
     evm_version: null
     solc:
-        version: 0.8.4
+        version: 0.8.3
         optimizer:
             enabled: true
             runs: 1000
@@ -57,6 +57,6 @@ hypothesis:
         target: true
         shrink: true
 
-autofetch_sources: false
+autofetch_sources: true
 dependencies: null
 dev_deployment_artifacts: false
