@@ -15,6 +15,12 @@ networks:
         reverting_tx_gas_limit: max
         default_contract_owner: true
         cmd_settings: null
+    integration:
+        gas_limit: max
+        gas_buffer: 1.1
+        gas_price: auto
+        reverting_tx_gas_limit: false
+        default_contract_owner: false
     live:
         gas_limit: auto
         gas_buffer: 1.1
