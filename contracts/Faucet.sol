@@ -26,7 +26,7 @@ contract Faucet {
    // Primero necesitamos la dirección del contrato del Token
    
    address public immutable token;
-   address public immutable _root;
+   address public _root;
 
    // También necesitamos una lista de direcciones.
    // Un "mapping" direccion -> a un 0 o 1 bastaría...
@@ -66,13 +66,30 @@ contract Faucet {
    }
 
    // Cuando acabe el tiempo del airdrop se pueden recuperar
-   // Si hay alguna logica en el token que no lo permita...
+   // a menos que haya alguna logica en el token que no lo permita...
+
+   // Se permite que Recovertokens lo llame un contrato por motivos fiscales.
+   // Si se llama a Recovertokens desde una direccion "normal" de Ethereum
+   // hacienda nos puede obligar a tributar por tener los tokens durante unos segundos.
 
    function Recovertokens() public returns (bool) {
-      require(tx.origin == _root, "tx.origin is not root");
+      require(tx.origin == _root || msg.sender == _root , "tx.origin is not root");
       uint256 allbalance = iERC20(token).balanceOf(address(this));
       return iERC20(token).transfer(_root, allbalance);
    }
+
+   // SetRoot permite cambiar el superusuario del contrato
+   // es decir, la dirección a la que se permite reclamar
+   // todos los tokens. Se puede llamar desde un contrato!
+
+   event NewRootEvent(address);
+
+   function SetRoot(address newroot) public {
+      require(msg.sender == _root); // sender 
+      address oldroot = _root;
+      emit NewRootEvent(newroot);
+      _root = newroot;
+   } 
    
    // Necesitamos construir el contrato (instanciar)
    // Constructor

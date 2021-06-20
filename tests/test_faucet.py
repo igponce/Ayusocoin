@@ -8,7 +8,9 @@ from brownie import accounts, exceptions, reverts, Ayusocoin, Faucet
 def token_faucet():
    token = accounts[0].deploy(Ayusocoin)
    faucet = accounts[0].deploy(Faucet,token.address, 100_000000)
-   token.transfer(faucet.address, 10000_000000, {'from': accounts[0].address})
+   all_tokens = token.balanceOf(accounts[0].address)
+   token.setMaxBalancePerAddress(all_tokens)
+   token.transfer(faucet.address, all_tokens, {'from': accounts[0].address})
    return (token, faucet)
 
 def test_faucet_has_balance(token_faucet):
@@ -54,10 +56,6 @@ def test_faucet_recovertokens_by_owner(token_faucet):
     noroot = accounts[1].address;
     faucet_balance = token.balanceOf(faucet.address)
 
-    # Cambiamos el saldo maximo como _root del token o no funcionará
-    maxtokens = token.totalSupply()
-    token.setMaxBalancePerAddress(maxtokens)
-
     # Root es el superuser del contrato faucet. noroot, no lo es
 
     faucet_root = faucet._root()
@@ -71,4 +69,30 @@ def test_faucet_recovertokens_by_owner(token_faucet):
 
     tx = faucet.Recovertokens()
     assert token.balanceOf(faucet.address) == 0
+
+
+def test_faucet_change_owner(token_faucet):
+    """
+       La funcion SetRoot() sirve para que otro contrato
+       pueda hacer Claim() del contenido del Faucet sin
+       tener que pasar por una direccion de una persona.
+       Ese paso, el de pasar por una dirección tiene
+       implicaciones fiscales en España si el token vale > 0€
+    """
+    token, faucet = token_faucet
+    oldroot = accounts[0].address # superuser del faucet 
+    newroot = accounts[1].address
+
+    tx = faucet.SetRoot(newroot, {'from': oldroot })
+    assert tx.events['NewRootEvent'].values()[0] == newroot
+
+    with reverts():
+       faucet.SetRoot(accounts[3].address, {'from': oldroot })
+
+    with reverts():
+       tx = faucet.Recovertokens({'from': oldroot})
+
+    faucet_balance = token.balanceOf(faucet.address)
+    faucet.Recovertokens({'from': newroot})
+    assert token.balanceOf(newroot) == faucet_balance
 
