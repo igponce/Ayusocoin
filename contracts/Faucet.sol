@@ -57,7 +57,8 @@ contract Faucet {
    function Claim(address index) public returns (uint256) {
       // hmm... ¿dejamos que lo haga un contrato?
       // si no => require(msg.sender == tx.origin, "Only humans");
-      require(ClaimedAmount(index) == 0);
+      require(ClaimedAmount(index) == 0 && index != address(0));
+
       _setClaimed(index);
       // Hacemos la transferencia y revertimos operacion si da algún error
       require(iERC20(token).transfer(index, claimAmount), "Airdrop: error transferencia");

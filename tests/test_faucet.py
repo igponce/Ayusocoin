@@ -49,6 +49,14 @@ def test_faucet_clain_only_once(token_faucet):
     assert balance_afterclaim1 > 0
     assert balance_afterclaim2 == balance_afterclaim1
 
+def test_faucet_zeroaddress_cannotclaim(token_faucet):
+    token, faucet = token_faucet
+
+    zeroaddr = '0x0000000000000000000000000000000000000000'
+    
+    with reverts():
+       faucet.Claim(zeroaddr)
+
 
 def test_faucet_recovertokens_by_owner(token_faucet):
     token, faucet = token_faucet
