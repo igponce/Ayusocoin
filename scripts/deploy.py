@@ -1,14 +1,15 @@
 # Despliegue
 
 from brownie import Ayusocoin, Faucet, accounts
+import os
 
 
-def DeployContracts():
+def DeployContracts(account):
     
-    token = accounts[0].deploy(Ayusocoin)
-    faucet = accounts[0].deploy(Faucet,token.address, 1000_000000)
+    token = account.deploy(Ayusocoin)
+    faucet = account.deploy(Faucet,token.address, 1000_000000)
     
-    root = accounts[0].address
+    root = account.address
     
     alltokens = token.totalSupply()
     
@@ -23,7 +24,7 @@ def DeployContracts():
     
     # Enviamos tokens iniciales a las paper wallet que
     for addr in addresses:
-      token.transfer(addr, 12345, {'from': accounts[0].address})
+      token.transfer(addr, 12345, {'from': account.address})
     
     balance_restante = token.balanceOf(root)
     token.setMaxBalancePerAddress(alltokens, {"from": root})
@@ -36,4 +37,6 @@ def DeployContracts():
 def main():
 
     print("Desplegando contratos")
-    DeployContracts()
+    pk = os.environ.get("PRIVATE_KEY")
+    deployment_account = accounts.add(pk) if pk != None else accounts[0]
+    DeployContracts(deployment_account)
