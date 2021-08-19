@@ -14,7 +14,7 @@ def proxycontract():
 
 
 def test_contract_deployer_tiene_todo_balance(token):
-    assert token.balanceOf(accounts[0].address) == 47000000 * 1000000 * 1000
+    assert token.balanceOf(accounts[0].address) == 47000000 * 10000000 * 1000
 
 
 def test_erc20_transfer(token):
