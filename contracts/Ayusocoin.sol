@@ -37,8 +37,9 @@ contract Ayusocoin {
   string public constant symbol = "AYUSOS";
 
   // Parámetros técnicos
-  uint8 public constant decimals = 6;
-  uint256 public _totalSupply = 47000000000000000; // 1000 ayusos * 47.000.000 de españoles (*1000000 - 6 decimales) - un número divertido
+  uint8 public constant decimals = 7; // La bandera de la Comunida de Madrid tiene siete estrellas.
+  uint256 public _totalSupply = 470000000000000000; // 1000 ayusos * 47.000.000 de españoles (*10_000_000 por los 7 decimales) - un número divertido
+
   
   // Propio de este token
 
