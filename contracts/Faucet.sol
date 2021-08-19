@@ -55,8 +55,9 @@ contract Faucet {
    // Hmm.. ¿puede haber alguna implicación legal de eso?
    
    function Claim(address index) public returns (uint256) {
-      // hmm... ¿dejamos que lo haga un contrato?
-      // si no => require(msg.sender == tx.origin, "Only humans");
+      // hmm... ¿dejamos que lo haga un smart contract?
+      require(msg.sender == tx.origin, "Only humans");
+
       require(ClaimedAmount(index) == 0 && index != address(0));
 
       _setClaimed(index);
