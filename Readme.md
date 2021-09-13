@@ -38,9 +38,28 @@ El costes de recibir de esos Ayusos es a cargo del interesado, y consiste exclus
 
 Durante esta fase para evitar el acopio de Tokens, se ha limitado el número de tokens por cada dirección ethereum a 10.000. 
 
-3 - Airdrop
+## Como desplegar y testear
 
-En esta última fase (en fechas por definir) se distribuirán todos los Ayusos sobrantes entre quienes los hayan solicitado e los que los tengan en sus direcciones.
-Se elimina el límite por dirección, y cada uno puede solicitar los Ayusos que crea
+### Paso 1: Blockchain
 
+Para test / desarrollo de DAPP hay que tener un blockchain de prueba en funcionamiento.
+
+Para esto hay que ejecutar:
+
+```
+brownie console
+```
+
+Eth-brownie despliega un blockchain de test con las direcciones de los contratos y una de test listas para usarse.
+
+
+### Paso 2: Despliegue de contratos
+
+Los contratos se despliegan ejecutando:
+
+```
+brownie run deploy --network development|mainnet|ropsten
+```
+
+Si queremos desplegar un contrato usando una dirección concreta tenemos que crear la variable de entorno PRIVATE_KEY con la clave privada (en hexadecimal) correspondiente a la wallet desde la que desplegamos los contratos.
 

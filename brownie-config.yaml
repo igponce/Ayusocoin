@@ -14,7 +14,11 @@ networks:
         gas_price: 200000000
         reverting_tx_gas_limit: max
         default_contract_owner: true
-        cmd_settings: null
+        cmd_settings:
+            unlock:
+                - 0xf3cCc271b2735075c292968d2922898a17E44cdE
+                - 0x01136881f010206120874A0fBD01EDccd200E515
+ 
     integration:
         gas_limit: max
         gas_buffer: 1.1

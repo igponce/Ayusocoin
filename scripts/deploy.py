@@ -1,6 +1,6 @@
 # Despliegue
 
-from brownie import Ayusocoin, Faucet, accounts, web3
+from brownie import Ayusocoin, Faucet, accounts, web3, network
 import os
 
 
@@ -36,24 +36,33 @@ def DeployContracts(account):
 
 def main():
 
-    pk = os.environ.get("PRIVATE_KEY")
-    deployment_account = accounts.add(pk) if pk != None else accounts[0]
+    if (network.Chain().id == 1337):
+      # Development / Integration network
+      # Tenemos dos direcciones ETH de más
+      # accounts[11] -> para test de metamask
+      # accounts[12] -> para desplegar contratos
+      accounts[0].transfer(accounts[-1].address, accounts[0].balance() / 2)
+      accounts[1].transfer(accounts[-2].address, accounts[1].balance() / 2)
+    
+    pk = os.environ.get('PRIVATE_KEY')
+    deployment_account = accounts.add(pk) if pk != None else accounts[-1]
 
     saldo = deployment_account.balance() 
     # Confirmación a mano antes de hacer el despliegue!
-
 
     expected = "confirmar"
     print(f"""
     ##############################################################  
     Desplegando contratos
+
+       RED: {network.Chain().id}
     
     Dirección: {deployment_account.address} (saldo: {web3.fromWei(saldo, 'ether')} Eth)
 
        Direcciones contratos:
 
           - f{deployment_account.get_deployment_address(0)} - Token
-          - f{deployment_account.get_deployment_address(0)} - Faucet
+          - f{deployment_account.get_deployment_address(1)} - Faucet
 
       Gas: {deployment_account.estimate_gas()}
 
