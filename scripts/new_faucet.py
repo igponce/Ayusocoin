@@ -44,6 +44,8 @@ def DeployContracts(account):
 
 def main():
 
+    import pdb; pdb.set_trace()
+
     if (network.Chain().id == 1337):
       # Development / Integration network
       # Tenemos dos direcciones ETH de más
