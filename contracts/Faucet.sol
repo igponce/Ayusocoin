@@ -88,9 +88,8 @@ contract Faucet {
 
    function SetRoot(address newroot) public {
       require(msg.sender == _root); // sender 
-      address oldroot = _root;
-      emit NewRootEvent(newroot);
       _root = newroot;
+      emit NewRootEvent(newroot);
    } 
    
    // Necesitamos construir el contrato (instanciar)
